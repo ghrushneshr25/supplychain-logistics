@@ -1,19 +1,19 @@
-import { addRetailer } from "./Web3Client";
+import { addConsumer } from "../Web3Client";
 import React, { useState } from "react";
 
 export default () => {
   const [address, setaddress] = useState("");
 
   const submitValue = () => {
-    addRetailer(address);
+    addConsumer(address);
   };
 
   return (
     <>
-      <h3>Add Retailer</h3>
+      <h3>Add Consumer</h3>
       <input
         type="text"
-        placeholder="Retailer Address"
+        placeholder="Consumer Address"
         onChange={(e) => setaddress(e.target.value)}
       />
       <button onClick={submitValue}>Submit</button>

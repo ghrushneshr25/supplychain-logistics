@@ -1,9 +1,10 @@
 import Web3 from "web3";
 import SupplyChain from "./SupplyChain.json";
+import { OWNERADDRESS, CONTRACTADDRESS } from "./constants";
 let selectedAccounts;
 let supplyChainContract;
 let typeOfUser;
-
+let web3;
 export const init = async () => {
   let provider = window.ethereum;
   if (typeof provider !== "undefined") {
@@ -23,14 +24,24 @@ export const init = async () => {
     });
   }
 
-  const web3 = new Web3(provider);
+  web3 = new Web3(provider);
 
   const networkID = await web3.eth.net.getId();
 
-  supplyChainContract = new web3.eth.Contract(
-    SupplyChain.abi,
-    "0x41989FE49643e456bBA696b5aA9df256474B4b3e"
-  );
+  supplyChainContract = new web3.eth.Contract(SupplyChain.abi, CONTRACTADDRESS);
+
+  getEntity();
+};
+
+const getEntity = async () => {
+  let r = await supplyChainContract.methods
+    .getEntity()
+    .call({ from: selectedAccounts, gas: 10000000 });
+  if (r == 5 && selectedAccounts == OWNERADDRESS) {
+    r = 0;
+  }
+  typeOfUser = r;
+  console.log(typeOfUser);
 };
 
 export const addManufacturer = (manufacturer) => {
@@ -81,10 +92,78 @@ export const addConsumer = (consumer) => {
     });
 };
 
-// const fetchEntityType = (address) => {
-//   if (address == "0x1c9ab960cb703928813aa86BEF737B8Daa6B9306") {
-//     return "Owner";
-//   }
-// };
+export const produceByManufacturer = (
+  productName,
+  productDesc,
+  productType,
+  collectible,
+  weight
+) => {
+  return supplyChainContract.methods
+    .producebymanufacturer(
+      productName,
+      productDesc,
+      productType,
+      collectible,
+      weight
+    )
+    .send({ from: selectedAccounts })
+    .then((transaction) => {
+      console.log(transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
-const 
+export const saleByManufacturer = (productId, price) => {
+  return supplyChainContract.methods
+    .forsalebymanufacturer(
+      productId,
+      web3.utils.toWei(price.toString(), "ether")
+    )
+    .send({ from: selectedAccounts })
+    .then((transaction) => {
+      console.log(transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+export const shippedByManufacturer = (productId, shippedToAddress) => {
+  return supplyChainContract.methods
+    .shippedbymanufacturer(productId, shippedToAddress)
+    .send({ from: selectedAccounts })
+    .then((transaction) => {
+      console.log(transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+export const getProductDetails = async (productId) => {
+  let details = 0;
+  // details = await supplyChainContract.methods
+  // .productDetail(productId)
+  // .send({ from: selectedAccounts })
+  // .then((transaction) => {
+  //   console.log(transaction);
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  // });
+
+  const events = await supplyChainContract
+    .getPastEvents("allEvents", {
+      filter: { uin: productId },
+      fromBlock: 0,
+      toBlock: "latest",
+    })
+    .then((events) => {
+      console.log(events);
+    });
+
+  return { productDetails: details, productEvents: events };
+};

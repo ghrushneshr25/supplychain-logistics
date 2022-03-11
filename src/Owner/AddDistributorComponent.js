@@ -1,9 +1,8 @@
-import { addDistributor } from "./Web3Client";
+import { addDistributor } from "../Web3Client";
 import React, { useState } from "react";
 
 export default () => {
   const [address, setaddress] = useState("");
-  
   const submitValue = () => {
     addDistributor(address);
   };

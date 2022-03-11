@@ -1,21 +1,15 @@
 import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { init } from "./Web3Client";
-import AddManufacturerComponent from "./AddManufacturerComponent";
-import AddRetailerComponent from "./AddRetailerComponent";
-import AddDistributorComponent from "./AddDistributorComponent";
-import AddConsumerComponent from "./AddConsumerComponent";
-
+import ManufacturerPage from "./ManufacturerPage";
 function App() {
   useEffect(() => {
     init();
   }, []);
   return (
     <div className="App">
-      <AddManufacturerComponent />
-      <AddDistributorComponent />
-      <AddRetailerComponent />
-      <AddConsumerComponent />
+      <ManufacturerPage />
     </div>
   );
 }
