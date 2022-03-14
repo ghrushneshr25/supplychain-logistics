@@ -5,6 +5,9 @@ let selectedAccounts;
 let supplyChainContract;
 let typeOfUser;
 let web3;
+let ownedProducts;
+let shippedProducts;
+
 export const init = async () => {
   let provider = window.ethereum;
   if (typeof provider !== "undefined") {
@@ -18,7 +21,7 @@ export const init = async () => {
         console.log(error);
       });
 
-    window.ethereum.on("accountsChanged", function (accounts) {
+    window.ethereum.on("accountsChanged", function(accounts) {
       selectedAccounts = accounts[0];
       console.log("Selected account: " + selectedAccounts);
     });
@@ -26,11 +29,13 @@ export const init = async () => {
 
   web3 = new Web3(provider);
 
-  const networkID = await web3.eth.net.getId();
-
   supplyChainContract = new web3.eth.Contract(SupplyChain.abi, CONTRACTADDRESS);
 
   getEntity();
+  if (typeOfUser > 0 && typeOfUser < 5) {
+    fetchOwnedProducts();
+    fetchShippedProducts();
+  }
 };
 
 const getEntity = async () => {
@@ -42,6 +47,18 @@ const getEntity = async () => {
   }
   typeOfUser = r;
   console.log(typeOfUser);
+};
+
+const fetchOwnedProducts = async () => {
+  ownedProducts = await supplyChainContract.methods
+    .x(selectedAccounts)
+    .call({ from: selectedAccounts, gas: 10000000 });
+};
+
+const fetchShippedProducts = async () => {
+  shippedProducts = await supplyChainContract.methods
+    .x(selectedAccounts)
+    .call({ from: selectedAccounts, gas: 10000000 });
 };
 
 export const addManufacturer = (manufacturer) => {
@@ -143,17 +160,28 @@ export const shippedByManufacturer = (productId, shippedToAddress) => {
     });
 };
 
+export const receiveProductByDistributor = (productId, productPrice) => {
+  return supplyChainContract.methods
+    .receivedbydistributor(productId)
+    .send({ from: selectedAccounts, value: productPrice })
+    .then((transaction) => {
+      console.log(transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
 export const getProductDetails = async (productId) => {
-  let details = 0;
-  // details = await supplyChainContract.methods
-  // .productDetail(productId)
-  // .send({ from: selectedAccounts })
-  // .then((transaction) => {
-  //   console.log(transaction);
-  // })
-  // .catch((error) => {
-  //   console.log(error);
-  // });
+  const details = await supplyChainContract.methods
+    .productDetail(productId)
+    .send({ from: selectedAccounts })
+    .then((transaction) => {
+      console.log(transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 
   const events = await supplyChainContract
     .getPastEvents("allEvents", {
