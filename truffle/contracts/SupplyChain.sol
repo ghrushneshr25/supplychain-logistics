@@ -252,6 +252,20 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         _;
     }
 
+    function getEntity() public view returns (uint256) {
+        if (isManufacturer(msg.sender)) {
+            return 1;
+        } else if (isDistributor(msg.sender)) {
+            return 2;
+        } else if (isRetailer(msg.sender)) {
+            return 3;
+        } else if (isConsumer(msg.sender)) {
+            return 4;
+        } else {
+            return 5;
+        }
+    }
+
     // Step1
     function producebymanufacturer(
         string memory _ProductName,

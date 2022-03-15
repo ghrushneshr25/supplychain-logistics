@@ -3,7 +3,7 @@ pragma solidity >=0.4.24;
 import "./Agents.sol";
 import "./Owner.sol";
 
-contract Retailer is Owner{
+contract Retailer is Owner {
     using Agents for Agents.Role;
 
     event RetailerAdded(address indexed account);
@@ -22,7 +22,7 @@ contract Retailer is Owner{
         return retailers.has(account);
     }
 
-    function addRetailer(address account) onlyOwner public {
+    function addRetailer(address account) public onlyOwner {
         _addRetailer(account);
     }
 
@@ -34,7 +34,7 @@ contract Retailer is Owner{
         _unreportRetailer(account);
     }
 
-    function renounceRetailer(address account) onlyOwner internal {
+    function renounceRetailer(address account) internal onlyOwner {
         _removeRetailer(account);
     }
 

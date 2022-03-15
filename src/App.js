@@ -1,15 +1,18 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { init } from "./Web3Client";
+import { init, typeOfUser } from "./Web3Client";
+import DistributorPage from "./DistributorPage";
 import ManufacturerPage from "./ManufacturerPage";
+import OwnerPage from "./OwnerPage";
+import Redirect from "./Redirect";
+
 function App() {
   useEffect(() => {
     init();
   }, []);
   return (
     <div className="App">
-      <ManufacturerPage />
+      <DistributorPage />
     </div>
   );
 }
