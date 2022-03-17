@@ -31,10 +31,22 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
                 ownership[x].itemUin[i] = ownership[x].itemUin[
                     ownership[x].itemUin.length - 1
                 ];
+                ownership[x].itemUin.pop();
                 break;
             }
         }
-        delete ownership[x].itemUin[ownership[x].itemUin.length - 1];
+    }
+
+    function deleteItemshipped(uint256 _uin, address x) internal {
+        for (uint256 i = 0; i < shipped[x].itemUin.length; i++) {
+            if (_uin == shipped[x].itemUin[i]) {
+                shipped[x].itemUin[i] = shipped[x].itemUin[
+                    shipped[x].itemUin.length - 1
+                ];
+                shipped[x].itemUin.pop();
+                break;
+            }
+        }
     }
 
     enum State {
@@ -353,6 +365,8 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         deleteItem(uin, items[uin].CurrentOwner);
         ownership[items[uin].CurrentOwner].count--;
         items[uin].CurrentOwner = payable(msg.sender);
+        shipped[items[uin].CurrentOwner].count--;
+        deleteItemshipped(uin, items[uin].CurrentOwner);
         items[uin].productPrice = 0;
         ownership[msg.sender].count++;
         ownership[msg.sender].itemUin.push(uin);
@@ -410,6 +424,8 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         ownership[items[uin].CurrentOwner].count--;
         deleteItem(uin, items[uin].CurrentOwner);
         items[uin].CurrentOwner = payable(msg.sender);
+        shipped[items[uin].CurrentOwner].count--;
+        deleteItemshipped(uin, items[uin].CurrentOwner);
         items[uin].productPrice = 0;
         ownership[msg.sender].count++;
         ownership[msg.sender].itemUin.push(uin);
@@ -466,6 +482,8 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         ownership[items[uin].CurrentOwner].count--;
         deleteItem(uin, items[uin].CurrentOwner);
         items[uin].CurrentOwner = payable(msg.sender);
+        shipped[items[uin].CurrentOwner].count--;
+        deleteItemshipped(uin, items[uin].CurrentOwner);
         items[uin].productPrice = 0;
         ownership[msg.sender].count++;
         ownership[msg.sender].itemUin.push(uin);
@@ -536,6 +554,8 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         ownership[items[uin].CurrentOwner].count--;
         deleteItem(uin, items[uin].CurrentOwner);
         items[uin].CurrentOwner = payable(msg.sender);
+        shipped[items[uin].CurrentOwner].count--;
+        deleteItemshipped(uin, items[uin].CurrentOwner);
         items[uin].productPrice = 0;
         ownership[msg.sender].count++;
         ownership[msg.sender].itemUin.push(uin);
@@ -543,31 +563,35 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
     }
 
     //Step 14
-    function productDetail(uint256 uin)
-        public
-        view
-        returns (
-            uint256,
-            string memory,
-            string memory,
-            address,
-            address,
-            uint256,
-            uint256
-        )
-    {
-        return (
-            items[uin].uin,
-            items[uin].productName,
-            items[uin].productDescription,
-            items[uin].manufacturerId,
-            items[uin].CurrentOwner,
-            items[uin].productDate,
-            items[uin].productPrice
-        );
+    // function productDetail(uint256 uin)
+    //     public
+    //     view
+    //     returns (
+    //         uint256,
+    //         string memory,
+    //         string memory,
+    //         address,
+    //         address,
+    //         uint256,
+    //         uint256
+    //     )
+    // {
+    //     return (
+    //         items[uin].uin,
+    //         items[uin].productName,
+    //         items[uin].productDescription,
+    //         items[uin].manufacturerId,
+    //         items[uin].CurrentOwner,
+    //         items[uin].productDate,
+    //         items[uin].productPrice
+    //     );
+    // }
+
+    function productDetail(uint256 uin) public view returns (Item memory) {
+        return (items[uin]);
     }
 
-    function x(address z) public view returns (Item[] memory) {
+    function getOwnedProducts(address z) public view returns (Item[] memory) {
         Item[] memory item = new Item[](ownership[z].itemUin.length);
         for (uint256 i = 0; i < ownership[z].itemUin.length; i++) {
             Item storage x = items[ownership[z].itemUin[i]];
@@ -576,7 +600,7 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         return item;
     }
 
-    function y(address z) public view returns (Item[] memory) {
+    function getShippedProducts(address z) public view returns (Item[] memory) {
         Item[] memory item = new Item[](shipped[z].itemUin.length);
         for (uint256 i = 0; i < shipped[z].itemUin.length; i++) {
             Item storage x = items[shipped[z].itemUin[i]];
@@ -585,3 +609,16 @@ contract SupplyChain is Retailer, Consumer, Manufacturer, Distributor {
         return item;
     }
 }
+
+//         uint256 uin
+//         string productName;
+//         string productDescription;
+//         address manufacturerId;
+//         address CurrentOwner;
+//         uint256 productDate;
+//         bool collectible;
+//         bool composite;
+//         uint weight;
+//         uint productPrice;
+//         byte32 productHash;
+//         State productState;

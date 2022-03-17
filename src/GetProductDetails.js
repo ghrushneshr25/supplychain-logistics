@@ -4,7 +4,8 @@ import { getProductDetails } from "./Web3Client";
 export default () => {
   const [productId, setproductId] = useState("");
   const submitValue = () => {
-    console.log(getProductDetails(productId));
+    let fetched = getProductDetails(productId);
+    console.log(fetched);
   };
 
   return (

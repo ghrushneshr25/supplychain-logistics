@@ -12,6 +12,9 @@ function App() {
   }, []);
   return (
     <div className="App">
+      {console.log(typeOfUser)}
+      <OwnerPage />
+      <ManufacturerPage />
       <DistributorPage />
     </div>
   );

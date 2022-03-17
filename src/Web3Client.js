@@ -1,6 +1,8 @@
+import React from "react";
 import Web3 from "web3";
 import SupplyChain from "./contractBuilds/SupplyChain.json";
 import { OWNERADDRESS, CONTRACTADDRESS } from "./constants";
+import { useState } from "react";
 let selectedAccount;
 let supplyChainContract;
 export let typeOfUser;
@@ -30,8 +32,6 @@ export const init = async () => {
       getEntityOfUser(selectedAccount);
       getOwnedProducts(selectedAccount);
       getShippedProducts(selectedAccount);
-      console.log(ownedProducts);
-      console.log(shippedProducts);
     });
   }
 
@@ -181,40 +181,58 @@ export const receiveProductByDistributor = (productId, productPrice) => {
 };
 
 export const getProductDetails = async (productId) => {
-  const details = await supplyChainContract.methods
+  let productState = 0;
+  let details = await supplyChainContract.methods
     .productDetail(productId)
-    .send({ from: selectedAccount })
-    .then((transaction) => {
-      console.log(transaction);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-
-  const events = await supplyChainContract
-    .getPastEvents("allEvents", {
-      filter: { uin: productId },
-      fromBlock: 0,
-      toBlock: "latest",
-    })
-    .then((events) => {
-      console.log(events);
-    });
-};
-
-export const getOwnedProducts = async (address) => {
-  ownedProducts = await supplyChainContract.methods
-    .x(address)
-    .call({ from: selectedAccount });
-  console.log(ownedProducts);
-};
-
-export const getShippedProducts = async (address) => {
-  shippedProducts = await supplyChainContract.methods
-    .y(address)
     .call({ from: selectedAccount })
     .catch((error) => {
       console.log(error);
     });
-  console.log(shippedProducts);
+  productState = details["productState"];
+  let events = [];
+  let state = [
+    "EProducedByManufacturer",
+    "EForSaleByManufacturer",
+    "EShippedByManufacturer",
+    "EReceivedByDistributor",
+    "EForSaleByDistributor",
+    "EShippedByDistributor",
+    "EReceivedByRetailer",
+    "EForSaleByRetailer",
+    "EShippedByRetailer",
+    "EReceivedByCustomer",
+    "ECollectibleForSaleByCustomer",
+    "EShippedtheCollectibleByCustomer",
+    "EReceivedCollectibleByCustomer",
+  ];
+  let i = 0;
+  while (i <= productState) {
+    const e1 = await supplyChainContract.getPastEvents(state[i], {
+      filter: { uid: productId },
+      fromBlock: 0,
+      toBlock: "latest",
+    });
+    for (var j of e1) {
+      events.push(j);
+    }
+    i++;
+  }
+  return { details: details, events: events };
+};
+
+export const getOwnedProducts = async (address) => {
+  ownedProducts = await supplyChainContract.methods
+    .getOwnedProducts(address)
+    .call({ from: selectedAccount });
+  // console.log(ownedProducts);
+};
+
+export const getShippedProducts = async (address) => {
+  shippedProducts = await supplyChainContract.methods
+    .getShippedProducts(address)
+    .call({ from: selectedAccount })
+    .catch((error) => {
+      console.log(error);
+    });
+  // console.log(shippedProducts);
 };
